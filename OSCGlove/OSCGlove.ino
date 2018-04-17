@@ -15,7 +15,10 @@ SLIPEncodedUSBSerial SLIPSerial( thisBoardsSerialUSB );
 
 // constant not changing variables
 const int buttonPin = 2;// the number of the pushbutton pin
-
+const int drumPin = A0; 
+const int threshold = 200;
+int drumRead = 0; 
+bool hit = false;
 // changing variables
 int buttonState = 0;    // variable for reading the pushbutton status
 int waveform; // variable used for waveform selection
@@ -27,12 +30,35 @@ void setup() {
 }
 
 void loop() {
-  OSCMessage msg1("/waveformSelect");
-  msg1.add(waveform);
+
+  drumRead = analogRead(drumPin); 
+
+  if (drumRead < threshold)
+  {
+    drumRead = 0;
+    hit = false;
+  }
+
+  else
+  {
+    drumRead = 1;
+    hit = true;
+        
+  }
+
+
+  OSCMessage msg2("/drum");
+  msg2.add(drumRead);
   SLIPSerial.beginPacket();
-  msg1.send(SLIPSerial);
+  msg2.send(SLIPSerial);
   SLIPSerial.endPacket();
-  msg1.empty();
+  msg2.empty();
+
+ 
+ }
+ 
+  
+ 
   
   // put your main code here, to run repeatedly:
   buttonState = digitalRead(buttonPin);
@@ -43,7 +69,15 @@ void loop() {
     waveform++;
     waveform = waveform % 4;
     WaveBool = false;
-  }
+
+  OSCMessage msg1("/waveformSelect");
+  msg1.add(waveform);
+  SLIPSerial.beginPacket();
+  msg1.send(SLIPSerial);
+  SLIPSerial.endPacket();
+  msg1.empty();
+  
+ }
   
 // requires the button to be released before allowing a change to avoid 
 // it changing 10 times on 1 click
