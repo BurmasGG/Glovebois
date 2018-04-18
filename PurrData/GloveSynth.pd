@@ -1,4 +1,4 @@
-#N canvas 634 8 665 645 10;
+#N canvas 127 13 882 645 10;
 #X obj 142 148 mrpeach/slipdec;
 #X obj 141 183 mrpeach/unpackOSC;
 #X msg 98 25 close;
@@ -19,7 +19,7 @@
 #X connect 6 0 2 0;
 #X connect 7 0 5 0;
 #X restore 93 458 pd cosine;
-#N canvas 702 145 450 323 sawtooth 0;
+#N canvas 53 102 450 346 sawtooth 0;
 #X obj 151 179 phasor~;
 #X obj 148 118 inlet~;
 #X obj 154 238 outlet~;
@@ -53,22 +53,22 @@
 #X connect 7 0 4 0;
 #X connect 8 0 6 0;
 #X restore 260 457 pd square;
-#X obj 233 547 *~ 0.5;
-#X obj 233 605 dac~;
+#X obj 233 548 *~ 0.5;
+#X obj 236 600 dac~;
 #X obj 145 268 hradio 15 0 0 4 empty empty Waveform 69 7 0 10 -258049
 -262144 -1 0;
 #X obj 145 294 t f b;
 #X obj 146 331 sel 0 1 2;
 #X obj 208 311 s stopAll;
-#X obj 420 486 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
--1 -1 10700 1;
+#X obj 380 354 vsl 15 128 0 1 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 0 1;
 #X floatatom 425 63 0 0 0 0 - - -;
 #X obj 425 15 r frequency;
 #X msg 425 39 set \$1;
 #X obj 438 87 s frequency;
 #X obj 425 137 s pitch;
 #X obj 425 113 ftom;
-#X floatatom 561 65 0 0 0 0 - - -;
+#X floatatom 559 67 11 0 0 0 - - -, f 11;
 #X msg 561 41 set \$1;
 #X obj 561 17 r pitch;
 #X obj 570 89 s pitch;
@@ -78,12 +78,24 @@
 #X msg 220 28 open 7;
 #X obj 143 109 comport 7 9600;
 #X obj 231 516 *~;
-#X obj 322 478 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 322 478 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
-#X obj 142 215 mrpeach/routeOSC /waveformSelect /drum;
 #X floatatom 312 303 5 0 0 0 - - -, f 5;
+#N canvas 0 0 450 300 (subpatch) 0;
+#X array waveArray 100 float 5 black black;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0;
+#X coords 0 2 99 -2 400 140 1;
+#X restore 457 284 graph;
+#X obj 311 558 metro 100;
+#X obj 311 523 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 269 587 tabwrite~ waveArray;
+#X obj 142 215 mrpeach/routeOSC /waveformSelect /drum /filter;
 #X connect 0 0 1 0;
-#X connect 1 0 31 0;
+#X connect 1 0 36 0;
 #X connect 2 0 28 0;
 #X connect 3 0 4 0;
 #X connect 3 0 5 0;
@@ -93,6 +105,7 @@
 #X connect 6 0 29 0;
 #X connect 7 0 8 0;
 #X connect 7 0 8 1;
+#X connect 7 0 35 0;
 #X connect 9 0 10 0;
 #X connect 10 0 11 0;
 #X connect 10 1 12 0;
@@ -115,6 +128,9 @@
 #X connect 28 0 0 0;
 #X connect 29 0 7 0;
 #X connect 30 0 29 1;
-#X connect 31 0 9 0;
-#X connect 31 1 32 0;
-#X connect 32 0 30 0;
+#X connect 31 0 30 0;
+#X connect 33 0 35 0;
+#X connect 34 0 33 0;
+#X connect 36 0 9 0;
+#X connect 36 1 31 0;
+#X scroll 1;
