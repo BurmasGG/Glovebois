@@ -97,6 +97,35 @@ void loop()
 
 
 //if statement used to determine if the flex sensor is bend to the desired state to be "on"
+
+if (angle>flexTresh) 
+{
+
+    lowpass = lowpass % 4; //Used to make sure the number send to puredata is either 1,2,3 or 4. 
+
+    //Open sound control message that sends the "waveform" value to pure data.
+    OSCMessage msg1("/lowpassSelect");
+    msg1.add(lowpass);
+    SLIPSerial.beginPacket();
+    msg1.send(SLIPSerial);
+    SLIPSerial.endPacket();
+    msg1.empty();
+}
+
+if (angle2 > flexTresh)
+{
+   
+    highpass = highpass % 4; //Used to make sure the number send to puredata is either 1,2,3 or 4. 
+
+    //Open sound control message that sends the "waveform" value to pure data.
+    OSCMessage msg1("/highpassSelect");
+    msg1.add(highpassSelect
+    );
+    SLIPSerial.beginPacket();
+    msg1.send(SLIPSerial);
+    SLIPSerial.endPacket();
+    msg1.empty();
+}
   if (angle3 > flexThresh && !waveChange) {
     delay(1000);
     waveChange = true;
