@@ -4,9 +4,11 @@ void index(){
   float flexV = flexADC * VCC / 1023.0;
   float flexR = R_DIV * (VCC / flexV - 1.0);
   indexVal = analogRead(indexPin); 
+  deltat = millis()-prevTime;
   if (deltat > 50)
   {
     angleIndex = map(flexR, STRAIGHT_RESISTANCE_INDEX, BEND_RESISTANCE_INDEX,0, 90.0);
+    prevTime = millis();
   }
   if(angleIndex > flexThresh && lopValue == 0 && !lopSwitch)
   {

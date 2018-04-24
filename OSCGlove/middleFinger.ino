@@ -10,7 +10,6 @@ void middle(){
   {
   angleMiddle = map(flexR2, STRAIGHT_RESISTANCE_MIDDLE, BEND_RESISTANCE_MIDDLE,0, 90.0);
   prevTime = millis();
-  SLIPSerial.println(angleMiddle);
   }
   
   if(angleMiddle > flexThresh && hipValue == 0 && !hipSwitch)
@@ -34,6 +33,6 @@ void middle(){
   SLIPSerial.endPacket();
   hipMsg.empty();
   }else if ( angleMiddle < flexThresh && hipSwitch)
-  hipSwitch = true;
+  hipSwitch = false;
   
   }

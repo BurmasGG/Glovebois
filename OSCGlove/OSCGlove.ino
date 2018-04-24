@@ -31,7 +31,7 @@ const int drumPin = A0;
 ////////////////////////////////////////////
 const int flexThresh = 100;
 const int drumThresh = 200;
-
+const int thumbThresh = 50;
 
 ////////////////////////////////////////////
 ////////VALUES - POWER & RESTISTANCE////////
@@ -42,8 +42,8 @@ const float STRAIGHT_RESISTANCE_INDEX = 21000.0;
 const float BEND_RESISTANCE_INDEX = 50000.0;
 const float STRAIGHT_RESISTANCE_MIDDLE = 21000.0;
 const float BEND_RESISTANCE_MIDDLE = 50000.0;
-const float STRAIGHT_RESISTANCE_THUMB = 56000.0;
-const float BEND_RESISTANCE_THUMB = 140000.0;
+const float STRAIGHT_RESISTANCE_THUMB = 23000.0;
+const float BEND_RESISTANCE_THUMB = 72000.0;
 
 
 ////////////////////////////////////////////
@@ -58,7 +58,7 @@ int prevTime = 0;
   float angleIndex;
   float angleMiddle;
   float angleThumb;
-  
+ float waveSend;
 
 ////////////////////////////////////////////
 ///////////BOOLEANS FOR ON n OFF////////////
@@ -76,7 +76,7 @@ bool hipSwitch = false;
 
 void setup() 
 {
-  SLIPSerial.begin(9600);
+  SLIPSerial.begin(9200);
 }
 
 void loop() 
@@ -84,7 +84,7 @@ void loop()
   
 //drum();
 //index();
-middle();
-//thumb();
+//middle();
+thumb();
 
 }
