@@ -4,12 +4,12 @@ void thumb(){
   float flexV3 = flexADC3 * VCC / 1023.0;
   float flexR3 = R_DIV * (VCC / flexV3 - 1.0);
   thumbVal = analogRead(thumbPin);
-  deltat = millis()-prevTime;
+  deltat = millis()-prevTimeT;
 
   if (deltat > 50)
   {
   angleThumb = map(flexR3, STRAIGHT_RESISTANCE_THUMB, BEND_RESISTANCE_THUMB,0, 90.0);
-  prevTime = millis();
+  prevTimeT = millis();
   }
 
   if (angleThumb > thumbThresh && !waveChange) {

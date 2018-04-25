@@ -1,16 +1,14 @@
 void drum(){
   drumRead = analogRead(drumPin);
-  
   if (drumRead > drumThresh)
     {
-    Serial.println("drum tab is working");
-    drumRead = 0;
-    hit = false;
+    drumRead = 1;
+    hit = true;
     }
   else
   {
-    drumRead = 1;
-    hit = true;
+    drumRead = 0;
+    hit = false;
   }
 
    OSCMessage msg2("/drum");

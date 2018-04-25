@@ -29,21 +29,22 @@ const int drumPin = A0;
 ////////////////////////////////////////////
 ///////////////THRESHOLDS///////////////////
 ////////////////////////////////////////////
-const int flexThresh = 100;
-const int drumThresh = 200;
-const int thumbThresh = 50;
+const int indexThresh = 90;
+const int drumThresh = 60;
+const int thumbThresh = 90;
+const int middleThresh = 90; 
 
 ////////////////////////////////////////////
 ////////VALUES - POWER & RESTISTANCE////////
 ////////////////////////////////////////////
 const float VCC = 5;
 const float R_DIV = 68000.0; //68k resistor used
-const float STRAIGHT_RESISTANCE_INDEX = 21000.0;
-const float BEND_RESISTANCE_INDEX = 50000.0;
-const float STRAIGHT_RESISTANCE_MIDDLE = 21000.0;
-const float BEND_RESISTANCE_MIDDLE = 50000.0;
-const float STRAIGHT_RESISTANCE_THUMB = 23000.0;
-const float BEND_RESISTANCE_THUMB = 72000.0;
+const float STRAIGHT_RESISTANCE_INDEX = 52000.0;
+const float BEND_RESISTANCE_INDEX = 110000.0;
+const float STRAIGHT_RESISTANCE_MIDDLE = 75000.0;
+const float BEND_RESISTANCE_MIDDLE = 140000.0;
+const float STRAIGHT_RESISTANCE_THUMB = 70000.0;
+const float BEND_RESISTANCE_THUMB = 120000.0;
 
 
 ////////////////////////////////////////////
@@ -66,6 +67,9 @@ int prevTime = 0;
 bool waveChange = false; //Boolean used to ensure sensor must be flexed "off" before it can be flexed "on" again.
 bool hit = false;
 int deltat =0;
+int prevTimeM = 0;
+int prevTimeI = 0;
+int prevTimeT = 0;
 ////////////////////////////////////////////
 ///////////FILTER VARIABLES/////////////////
 ////////////////////////////////////////////
@@ -82,9 +86,9 @@ void setup()
 void loop() 
 {
   
-//drum();
-//index();
-//middle();
+drum();
+index();
+middle();
 thumb();
 
 }
