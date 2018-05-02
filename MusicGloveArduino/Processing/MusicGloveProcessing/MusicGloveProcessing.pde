@@ -2,6 +2,9 @@
 // 6/20/2012 by Jeff Rowberg <jeff@rowberg.net>
 // Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
 //
+// The Processing sketch has been modified by 4th semester Medialogy students at Aalborg University
+// in order to use it for a prototype of a musical glove.
+//
 // Changelog:
 //     2012-06-20 - initial release
 
@@ -29,91 +32,70 @@
  ===============================================
  */
 
+// Importing libraries
 import processing.serial.*;
 import processing.opengl.*;
 import toxi.geom.*;
 import toxi.processing.*;
 import oscP5.*;
 import netP5.*;
-// NOTE: requires ToxicLibs to be installed in order to run properly.
-// 1. Download from http://toxiclibs.org/downloads
-// 2. Extract into [userdir]/Processing/libraries
-//    (location may be different on Mac/Linux)
-// 3. Run and bask in awesomeness
+
 
 ToxiclibsSupport gfx;
 
-Serial port;                         // The serial port
-OscP5 oscP5;
-char[] dataPacket = new char[14];  // InvenSense Teapot packet
-int serialCount = 0;                 // current packet byte position
+Serial port;                       // The serial port
+OscP5 oscP5;                       // OscP5 object to create and send OSC messages
+char[] dataPacket = new char[14];  // Char array to receive data
+int serialCount = 0;               // current packet byte position
 int aligned = 0;
 int interval = 0;
-int pitch = 0;
-int octave = 72;
-float volume;
-int hipValue;
-int lopValue;
-int waveform;
-float pX, pY, pZ;
-float prevAx = 0;
-boolean volumeChange = false;
+int pitch = 0;                     // Integer for storing the midi value of the pitch
+int octave = 72;                   // Integer for storing the current value of the octave
+float volume;                      // Floating point for storing the volume
+int hipValue, lopValue, waveform;  // Integers for storing the high pass, low pass and waveform values.                    
+float prevAx = 0;                  // Floating point to store the previous value of rotation for volume.
+boolean volumeChange = false;      // Booleans for whether the volume and octave should change.
 boolean octaveChanged = false;
-float[] q = new float[4];
+float[] q = new float[4];          // Array to store quaternion values before passing them on to toxiclibs Quaternion object.
 Quaternion quat = new Quaternion(1, 0, 0, 0);
-NetAddress purrData;
-float deltaX;
-float prevX;
-int deltat = 0;
+NetAddress purrData;               // NetAddress object for purr data.
+float deltaX, prevX;               // Floating points for calculating a deltaX, which is used to determine when the octave should change.
+int deltat = 0;                    // Integers for calculating a delta time.
 int prevTime = 0;
 
-int[] blackKeys = {1, 0, 1, 1, 0, 1, 1};
 void setup() {
-  // 300px square viewport using OpenGL rendering
+  //Set size.
   size(250, 200, OPENGL);
   gfx = new ToxiclibsSupport(this);
 
-  // setup lights and antialiasing
-
-  // display serial port list for debugging/clarity
-
-  // get the first available port (use EITHER this OR the specific port code below)
-  //String portName = Serial.list()[0];
-
-  // get a specific serial port (use EITHER this OR the first-available code above)
+  //Defining serial port to use.
   String portName = "COM3";
 
   // open the serial port
   port = new Serial(this, portName, 115200);
-
-  // send single character to trigger DMP init/start
-  // (expected by MPU6050_DMP6 example Arduino sketch)
-  port.write('r');
+  //Create new OscP5 object with receiving udp port 12001
   oscP5 = new OscP5(this, 12001);
+  //Local port for sending OSC messages to purr data.
   purrData = new NetAddress("127.0.01", 12000);
+  //Launching the pd patch.
   launch("C:/Users/peter/Desktop/MusicGloveArduino/Processing/MusicGloveProcessing/Mergeattempt.pd");
 }
 
 void draw() {
+  // Define OSC messages for purr data.
   OscMessage pitchMsg = new OscMessage("/pitch");
   OscMessage inMsg = new OscMessage("/lowPass");
   OscMessage miMsg = new OscMessage("/highPass");
   OscMessage thMsg = new OscMessage("/waveformSelect");
   OscMessage volMsg = new OscMessage("/volume");
-  //if (millis() - interval > 1000) {
-  //    // resend single character to trigger DMP init/start
-  //    // in case the MPU is halted/reset while applet is running
-  //    port.write('r');
-  //    interval = millis();
-  //}
-  fill(255, 255, 255);
-  // black background
+  fill(255, 255, 255); // White text, black background.
   background(0);
   pushMatrix();
+  // Using toxiclibs to convert the quaternion to axis angles.
   float[] axis = quat.toAxisAngle();
-  //calculating points from axis angles. 
-  //Note that toAxisAngle() switches the Z and Y axes
-  Vec2D vec = new Vec2D(2*(q[1]*q[2]-q[0]*q[3]),2*(q[3]*q[2]+q[0]*q[1]));
+  //calculating vector from quaternion
+  Vec2D vec = new Vec2D(2*(quat.x*quat.y-quat.w*quat.z),2*(quat.z*quat.y+quat.w*quat.x));
+  // Drawing text for the different values 
   text("Pitch: " + pitch, 10, 40);
   if (hipValue > 0)
     text("High pass filter: ON",10,50);
@@ -125,23 +107,17 @@ void draw() {
   else if (waveform==2) text("Waveform: SQUARE",10,70);
   else if (waveform==3) text("Waveform: OFF",10,70);
   text("Volume: " + volume*200,10,80);
+  // Check if the volume shouldn't change.
   if (!volumeChange) {
-
+    // Calculate pitch.
     pitch = octave - int(((vec.y+0.95)/1.9)*12);
     if (pitch>108)pitch=108;
     else if (pitch<21)pitch=21;
-    pitchMsg.add(pitch);
-    oscP5.send(pitchMsg, purrData);
-    inMsg.add(lopValue);
-    oscP5.send(inMsg, purrData);
-    miMsg.add(hipValue);
-    oscP5.send(miMsg, purrData);
-    thMsg.add(waveform);
-    oscP5.send(thMsg, purrData);
-
+    // Calculate delta time.
     deltat = millis() - prevTime;
-
+    // Check if delta time is above 50 ms.
     if (deltat > 50) {
+      // Determine whether the octave should change and how it should change.
       deltaX = vec.x- prevX;
       if (!octaveChanged) {
         if (deltaX<-0.20) {
@@ -162,27 +138,24 @@ void draw() {
     if (octave>108)octave=108;
     else if (octave<24)octave=24;
   } else {
+    // Change volume according to rotation. Block only entered if three fingers are bent.
     volume += - (axis[2]*axis[0])/2 - prevAx/2;
     if (volume >0.5) volume = 0.5; 
     else if (volume < 0) volume = 0;
   }
+  // Send all OSC messages.
+  pitchMsg.add(pitch);
+  oscP5.send(pitchMsg, purrData);
+  inMsg.add(lopValue);
+  oscP5.send(inMsg, purrData);
+  miMsg.add(hipValue);
+  oscP5.send(miMsg, purrData);
+  thMsg.add(waveform);
+  oscP5.send(thMsg, purrData);
   volMsg.add(volume);
   oscP5.send(volMsg, purrData);
   prevAx = - axis[2]*axis[0];
-  
-  // draw main body in red
-  //for (int i= 0; i<52;i++){
-  //  fill(255,255,255);
-  //  AABB whiteKey=new AABB(new Vec3D(10*i,0,10),new Vec3D(10,30,10));
-  //  gfx.box(whiteKey);
-  //  AABB blackKey = new AABB(new Vec3D(10*i+4.44,0,10),new Vec3D(10,20,10));
-  //  if (checkBlack(i)){
-  //    fill(0,0,0);
-  //    gfx.box(blackKey);
-  //  }
-  //}
-
-  // draw front-facing tip in blue   
+ 
   popMatrix();
 }
 
@@ -194,7 +167,7 @@ void serialEvent(Serial port) {
     if (serialCount > 0 || ch == '$') {
       dataPacket[serialCount++] = (char)ch;
       if (serialCount == 14) {
-        serialCount = 0; // restart packet byte position
+        serialCount = 0; 
 
         // get quaternion from data packet
         q[0] = ((dataPacket[2] << 8) | dataPacket[3]) / 16384.0f;
@@ -217,13 +190,4 @@ void serialEvent(Serial port) {
       }
     }
   }
-}
-
-boolean checkBlack(int i) {
-  if (i<7) {
-    if (i*blackKeys[i]!=0) {
-      return true;
-    }
-  } else if (i*blackKeys[i%7]!=0) return true;
-  return false;
 }
