@@ -43,12 +43,14 @@ import netP5.*;
 
 ToxiclibsSupport gfx;
 
-Serial port;                       // The serial port
+Serial glovePort;                       // The serial port
+Serial drumPort;
 OscP5 oscP5;                       // OscP5 object to create and send OSC messages
 char[] dataPacket = new char[14];  // Char array to receive data
 int serialCount = 0;               // current packet byte position
 int aligned = 0;
 int interval = 0;
+int drumVal = 0;
 int pitch = 0;                     // Integer for storing the midi value of the pitch
 int octave = 72;                   // Integer for storing the current value of the octave
 float volume;                      // Floating point for storing the volume
@@ -69,10 +71,11 @@ void setup() {
   gfx = new ToxiclibsSupport(this);
 
   //Defining serial port to use.
-  String portName = "COM3";
-
+  String glovePortName = "COM3";
+  String drumPortName = "COM5";
   // open the serial port
-  port = new Serial(this, portName, 115200);
+  glovePort = new Serial(this, glovePortName, 115200);
+  drumPort = new Serial(this, drumPortName, 9600);
   //Create new OscP5 object with receiving udp port 12001
   oscP5 = new OscP5(this, 12001);
   //Local port for sending OSC messages to purr data.
@@ -88,6 +91,7 @@ void draw() {
   OscMessage miMsg = new OscMessage("/highPass");
   OscMessage thMsg = new OscMessage("/waveformSelect");
   OscMessage volMsg = new OscMessage("/volume");
+  OscMessage drumMsg = new OscMessage("/drum");
   fill(255, 255, 255); // White text, black background.
   background(0);
   pushMatrix();
@@ -154,12 +158,15 @@ void draw() {
   oscP5.send(thMsg, purrData);
   volMsg.add(volume);
   oscP5.send(volMsg, purrData);
+  drumMsg.add(drumVal);
+  oscP5.send(drumMsg, purrData);
   prevAx = - axis[2]*axis[0];
  
   popMatrix();
 }
 
 void serialEvent(Serial port) {
+  if (port == glovePort){
   interval = millis();
   while (port.available() > 0) {
     int ch = port.read();
@@ -189,5 +196,8 @@ void serialEvent(Serial port) {
         fill(255, 255, 255);
       }
     }
+  }
+  } else if (port == drumPort){
+    drumVal = drumPort.read();
   }
 }
