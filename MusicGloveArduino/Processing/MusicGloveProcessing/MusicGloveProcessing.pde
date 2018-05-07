@@ -80,8 +80,7 @@ void setup() {
   oscP5 = new OscP5(this, 12001);
   //Local port for sending OSC messages to purr data.
   purrData = new NetAddress("127.0.01", 12000);
-  //Launching the pd patch.
-  launch("C:/Users/peter/Desktop/MusicGloveArduino/Processing/MusicGloveProcessing/Mergeattempt.pd");
+  launch("C:/Users/Thomas/Documents/Glovebois/MusicGloveArduino/Processing/MusicGloveProcessing/Mergeattempt.pd");
 }
 
 void draw() {
