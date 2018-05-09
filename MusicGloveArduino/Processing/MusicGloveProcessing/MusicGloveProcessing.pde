@@ -70,12 +70,9 @@ void setup() {
   size(250, 200, OPENGL);
   gfx = new ToxiclibsSupport(this);
 
-  //Defining serial port to use.
-  String glovePortName = "COM3";
-  String drumPortName = "COM5";
   // open the serial port
-  glovePort = new Serial(this, glovePortName, 115200);
-  drumPort = new Serial(this, drumPortName, 9600);
+  glovePort = new Serial(this, Serial.list()[0], 115200);
+  drumPort = new Serial(this, Serial.list()[1], 9600);
   //Create new OscP5 object with receiving udp port 12001
   oscP5 = new OscP5(this, 12001);
   //Local port for sending OSC messages to purr data.
