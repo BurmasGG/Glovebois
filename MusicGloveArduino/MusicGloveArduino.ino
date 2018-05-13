@@ -48,7 +48,6 @@ int waveform;
 float angleIndex;
 float angleMiddle;
 float angleThumb;
-float waveSend;
 ////////////////////////////////////////////
 ///////////BOOLEANS FOR ON n OFF////////////
 ////////////////////////////////////////////
@@ -175,8 +174,6 @@ void loop() {
         waveChange = true;
         waveform++;
         waveform = waveform % 4; //Used to make sure the number send to puredata is either 0,1,2 or 3.
-        waveSend = waveform;
-        //Open sound control message that sends the "waveform" value to pure data.
       }
       else if (angleThumb < thumbThresh && waveChange) {
         waveChange = false;
