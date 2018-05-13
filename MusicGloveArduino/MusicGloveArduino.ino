@@ -173,9 +173,11 @@ void loop() {
       if (angleThumb > thumbThresh && !waveChange) {
         waveChange = true;
         waveform++;
-        waveform = waveform % 4; //Used to make sure the number send to processing is either 0,1,2 or 3.
+        waveform = waveform % 4; //Used to make sure the number send to puredata is either 0,1,2 or 3.
       }
-      else if (angleThumb < thumbThresh && waveChange) waveChange = false;
+      else if (angleThumb < thumbThresh && waveChange) {
+        waveChange = false;
+      }
       if (angleMiddle > middleThresh && hipValue == 0 && !hipSwitch)
       {
         hipSwitch = true;
