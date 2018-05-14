@@ -90,19 +90,19 @@ void draw() {
   // Using toxiclibs to convert the quaternion to axis angles.
   float[] axis = quat.toAxisAngle();
   //calculating vector from quaternion
-  Vec2D vec = new Vec2D(2*(quat.x*quat.y-quat.w*quat.z),2*(quat.z*quat.y+quat.w*quat.x));
+  Vec2D vec = new Vec2D(2*(quat.x*quat.y-quat.w*quat.z), 2*(quat.z*quat.y+quat.w*quat.x));
   // Drawing text for the different values 
   text("Pitch: " + pitch, 10, 40);
   if (hipValue > 0)
-    text("High pass filter: ON",10,50);
-    else text("High pass filter: OFF",10,50);
-  if (lopValue > 0)text("Low pass filter:  ON",10,60); 
-  else text("Low pass filter:  OFF",10,60);
-  if (waveform == 0) text("Waveform: SINE",10,70);
-  else if (waveform==1) text("Waveform: SAWTOOTH",10,70);
-  else if (waveform==2) text("Waveform: SQUARE",10,70);
-  else if (waveform==3) text("Waveform: OFF",10,70);
-  text("Volume: " + volume*200,10,80);
+    text("High pass filter: ON", 10, 50);
+  else text("High pass filter: OFF", 10, 50);
+  if (lopValue > 0)text("Low pass filter:  ON", 10, 60); 
+  else text("Low pass filter:  OFF", 10, 60);
+  if (waveform == 0) text("Waveform: SINE", 10, 70);
+  else if (waveform==1) text("Waveform: SAWTOOTH", 10, 70);
+  else if (waveform==2) text("Waveform: SQUARE", 10, 70);
+  else if (waveform==3) text("Waveform: OFF", 10, 70);
+  text("Volume: " + volume*200, 10, 80);
   // Check if the volume shouldn't change.
   if (!volumeChange) {
     // Calculate pitch.
@@ -151,39 +151,40 @@ void draw() {
   volMsg.add(volume);
   oscP5.send(volMsg, purrData);
   prevAx = - axis[2]*axis[0];
- 
+
   popMatrix();
 }
 
 void serialEvent(Serial port) {
-  if (port == glovePort){
-  interval = millis();
-  while (port.available() > 0) {
-    int ch = port.read();
-    print((char)ch);
-    if (serialCount > 0 || ch == '$') {
-      dataPacket[serialCount++] = (char)ch;
-      if (serialCount == 14) {
-        serialCount = 0; 
+  if (port == glovePort) {
+    interval = millis();
+    while (port.available() > 0) {
+      int ch = port.read();
+      print((char)ch);
+      if (serialCount > 0 || ch == '$') {
+        dataPacket[serialCount++] = (char)ch;
+        if (serialCount == 14) {
+          serialCount = 0; 
 
-        // get quaternion from data packet
-        q[0] = ((dataPacket[2] << 8) | dataPacket[3]) / 16384.0f;
-        q[1] = ((dataPacket[4] << 8) | dataPacket[5]) / 16384.0f;
-        q[2] = ((dataPacket[6] << 8) | dataPacket[7]) / 16384.0f;
-        q[3] = ((dataPacket[8] << 8) | dataPacket[9]) / 16384.0f;
-        for (int i = 0; i < 4; i++) if (q[i] >= 2) q[i] = -4 + q[i];
+          // get quaternion from data packet
+          q[0] = ((dataPacket[2] << 8) | dataPacket[3]) / 16384.0f;
+          q[1] = ((dataPacket[4] << 8) | dataPacket[5]) / 16384.0f;
+          q[2] = ((dataPacket[6] << 8) | dataPacket[7]) / 16384.0f;
+          q[3] = ((dataPacket[8] << 8) | dataPacket[9]) / 16384.0f;
+          for (int i = 0; i < 4; i++) if (q[i] >= 2) q[i] = -4 + q[i];
 
-        // set our toxilibs quaternion to new data
-        quat.set(q[0], q[1], q[2], q[3]);
-        if (dataPacket[10] == 1) hipValue = 5000;
-        else hipValue = 0;
-        if (dataPacket[11] == 1) lopValue = 50000;
-        else lopValue = 0;
-        waveform = dataPacket[12];
-        if ((dataPacket[13]) == 1)
-          volumeChange = true;
-        else volumeChange = false;
-        fill(255, 255, 255);
+          // set our toxilibs quaternion to new data
+          quat.set(q[0], q[1], q[2], q[3]);
+          if (dataPacket[10] == 1) hipValue = 5000;
+          else hipValue = 0;
+          if (dataPacket[11] == 1) lopValue = 50000;
+          else lopValue = 0;
+          waveform = dataPacket[12];
+          if ((dataPacket[13]) == 1)
+            volumeChange = true;
+          else volumeChange = false;
+          fill(255, 255, 255);
+        }
       }
     }
   }
