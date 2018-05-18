@@ -90,7 +90,7 @@ void draw() {
   // Using toxiclibs to convert the quaternion to axis angles.
   float[] axis = quat.toAxisAngle();
   //calculating vector from quaternion
-  Vec2D vec = new Vec2D(2*(quat.x*quat.y-quat.w*quat.z), 2*(quat.z*quat.y+quat.w*quat.x));
+  Vec2D vec = new Vec2D(2*(quat.x*quat.y-quat.w*quat.z)+(quat.w*quat.w+quat.x*quat.x-quat.y*quat.y-quat.z*quat.z)+2*(quat.x*quat.z+quat.w*quat.y), 2*(quat.z*quat.y+quat.w*quat.x)+2*(quat.x*quat.z-quat.w*quat.y)+(quat.w*quat.w-quat.x*quat.x-quat.y*quat.y+quat.z*quat.z));
   // Drawing text for the different values 
   text("Pitch: " + pitch, 10, 40);
   if (hipValue > 0)
